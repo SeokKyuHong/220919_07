@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- 합쳐지고 최소화된 최신 CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
+    <!-- 부가적인 테마 -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap-theme.min.css">
+    <!-- 합쳐지고 최소화된 최신 자바스크립트 -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>  
+    <script src="https://code.jquery.com/jquery-3.6.1.js" integrity="sha256-3zlB5s2uwoUzrXK3BT7AX3FyvojsraNFxCc2vC/7pNI=" crossorigin="anonymous"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
+    <title>친해지길바래</title>
+</head>
+<body>
+    <h1>친해지길바래</h1>
+    <h2>회원가입</h2>
+
+    <form action="/signup" method="get">
+        <div class="form-group">
+          <label for="exampleInputEmail1">이메일</label>
+          <input id="post-signup-id" type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp">
+        </div>
+        <div class="form-group">
+          <label for="exampleInputPassword1">비밀번호</label>
+          <input id="post-signup-pw" type="password" class="form-control" id="exampleInputPassword1">
+        </div>
+        <div class="form-group">
+            <label for="exampleInputPassword1">비밀번호 확인</label>
+            <input id="post-signup-pw" type="password" class="form-control" id="exampleInputPassword1">
+          </div>
+          <div class="form-group">
+            <label for="exampleInputEmail1">이름</label>
+            <input id="post-signup-name" type="text" class="form-control" id="formGroupExampleInput">
+          </div>
+          <button type="submit" class="btn btn-secondary btn-lg btn-block">취소</button>
+          <button type="submit" class="btn btn-primary btn-lg btn-block" onclick="post_signup()">가입</button>
+      </form>
+    <script src="/static/signup.js"></script>
+    
+</body>
+</html>
