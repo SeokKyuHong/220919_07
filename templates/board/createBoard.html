@@ -1,0 +1,74 @@
+<!Doctype html>
+<html lang="ko">
+
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css"
+        integrity="sha384-B0vP5xmATw1+K9KRQjQERJvTumQW0nPEzvF6L/Z6nronJ3oUOFUFpCjEUQouq2+l" crossorigin="anonymous">
+
+    <!-- JS -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
+        integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
+        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"
+        integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN"
+        crossorigin="anonymous"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.js"></script>
+
+    <title>친해지길바래</title>
+
+    <!-- style -->
+    <link rel="stylesheet" href= {{url_for('static', filename="css/style.css")}}>
+    <script type="text/javascript">
+        $(document).ready(function(){
+            /* Category Count */
+            jQuery('#gnb div').each(function(){
+                jQuery(this).prev().click(function(){
+                    jQuery(this).next().stop().slideToggle();
+                });
+                return true;
+            });
+            jQuery('header nav h3 span').append(jQuery('#gnb div').length-jQuery('#gnb h4').length);
+            
+
+        });
+    </script>
+</head>
+<body>
+    <h1>친해지길 바래</h1>
+    <!-- nav var -->
+    <hedaer>
+        <nav>
+            <div class="dropdown" id="gnb">
+                <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown" aria-expanded="false">
+                    Category
+                </button>
+                <div class="dropdown-menu">
+                    <a class="dropdown-item" href="#">자유</a>
+                    <a class="dropdown-item" href="#">식사/야식</a>
+                    <a class="dropdown-item" href="#">공동구매</a>
+                </div>
+            </div>
+        </nav>
+    </header>
+    
+    <form>
+        <div class="form-group">
+            <label for="exampleFormControlTextarea1"> 제목을 입력하세요 </label>
+            <input type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp">
+        </div>
+        <div class="form-group">
+            <label for="exampleFormControlTextarea1"> 글을 작성해주세요 </label>
+            <textarea class="form-control" id="exampleFormControlTextarea1" rows="3"></textarea>
+        </div>
+    </form>
+    <button type="button" class="btn btn-primary btn-lg btn-block">작성완료</button>
+    
+    
+</body>
+
+</html>
