@@ -11,16 +11,12 @@ function post_signup() {
         url: "/signup",
         data: {url_id: id, url_pw: pass, url_pw2: pass2, url_name: name},
         success: function (response) { 
-            if (response["result"] == "success") {
-                
-                alert("회원가입완료! 로그인을 해주시기 바랍니다.");
-                location.href = 'index';
-                
-            }else if(response["result"] == "bb"){
-                alert("이미 등록한 아이디 입니다.")
-                window.location.reload(); //실패 했을떄 페이지 리로드
+            if (response["result"] == "success") {                
+                alert(response['msg'])
+                console.log(alert)
+                location.href = '/';
             }else{
-                alert("서버오류!")
+                alert("서버오류!");
             }
             
         }

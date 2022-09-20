@@ -25,37 +25,37 @@
     <link rel="stylesheet" href= {{url_for('static', filename="css/style.css")}}>
     <script type="text/javascript">
         $(document).ready(function(){
-            /* Category Count */
+            
+            /* Category */
             jQuery('#gnb div').each(function(){
                 jQuery(this).prev().click(function(){
                     jQuery(this).next().stop().slideToggle();
                 });
                 return true;
             });
-            jQuery('header nav h3 span').append(jQuery('#gnb div').length-jQuery('#gnb h4').length);
-            
 
+            /* Category */
+            jQuery('header nav h3 span').append(jQuery('#gnb div').length-jQuery('#gnb h4').length);
+
+            /* */
+        
+            function hello(){
+                let btn_text = $('#thfwlrkgsrjdi').text(); 
+                console.log(btn_text)
+            }
         });
+
     </script>
 </head>
 <body>
     <h1>친해지길 바래</h1>
     <!-- nav var -->
-    <hedaer>
-        <nav>
-            <div class="dropdown" id="gnb">
-                <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown" aria-expanded="false">
-                    Category
-                </button>
-                <div class="dropdown-menu">
-                    <a class="dropdown-item" href="#">자유</a>
-                    <a class="dropdown-item" href="#">식사/야식</a>
-                    <a class="dropdown-item" href="#">공동구매</a>
-                </div>
-            </div>
-        </nav>
-    </header>
-    
+    <select>
+        <option value="americano">잡담</option>
+        <option value="caffe latte">식사/야식</option>
+        <option value="cafe au lait">공동구매</option>
+    </select>
+
     <form>
         <div class="form-group">
             <label for="exampleFormControlTextarea1"> 제목을 입력하세요 </label>
