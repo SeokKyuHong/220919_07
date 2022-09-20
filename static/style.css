@@ -1,0 +1,16 @@
+body{
+    width: 400px;
+    margin: 0 auto;
+}
+
+.signup-box{
+    width: 100%;
+    height: auto;
+    margin: 0;
+}
+
+#checkMessage{
+    width: 100%;
+    height: auto;
+    color: red;
+}
