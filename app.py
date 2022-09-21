@@ -1,35 +1,71 @@
+from flask import Flask, render_template, jsonify, request, session, redirect, url_for
 
-from os import lseek
-from unittest import result
-from flask import Flask, render_template, request, jsonify
+app = Flask(__name__)
+
 from pymongo import MongoClient
-import hashlib
-import jwt
-import datetime as dt
-import time
-from crypt import methods
-from turtle import title
 
 client = MongoClient('mongodb://SecondWind:clsgowlrlfqkfo@13.125.11.60', 27017)
 db = client.db_00_07
 
-app = Flask(__name__)
+# JWT 토큰을 만들 때 필요한 비밀문자열, 자유롭게 입력
+# 서버만 알고있기 때문에, 내 서버에서만 토큰을 인코딩(=만들기)/디코딩(=풀기) 가능
+SECRET_KEY = 'SPARTA'
 
-##############
-###홍석규#######
-# 회원가입 페이지 불러오기
-@app.route('/signup', methods=['GET'])
-def signup_read() :
-    return render_template("signup.html")
+# JWT 패키지 사용 (설치: PyJWT)
+import jwt
 
-# 회원가입 데이터 전송, 아이디 중복 차단, 
-@app.route('/signup', methods=['POST'])
-def signup_post() :
+# 토큰에 만료시간을 줘야하기 때문에, datetime 모듈도 사용합니다.
+import datetime
 
-    url_id = request.form['url_id'] 
-    url_pw = request.form['url_pw'] 
+# 비밀번호 암호화를 위해
+import hashlib
+
+
+#################################
+##  HTML을 주는 부분             ##
+#################################
+@app.route('/')
+def home():
+    token_receive = request.cookies.get('mytoken')
+    try:
+        payload = jwt.decode(token_receive, SECRET_KEY, algorithms=['HS256'])
+        user_info = db.user.find_one({"id": payload['id']})
+        boards = list(db.boards.find({}, {'_id': False}))
+        return render_template('board/board.html', name=user_info["name"], boards=boards)
+        # return redirect(url_for("", name=user_info["name"]))
+    except jwt.ExpiredSignatureError:
+        return redirect(url_for("login"))
+    except jwt.exceptions.DecodeError:
+        return redirect(url_for("login"))
+
+
+@app.route('/login')
+def login():
+    # msg = request.args.get("msg")
+    return render_template('main.html')
+
+
+@app.route('/signup')
+def signup():
+    return render_template('signup.html')
+
+
+#################################
+##  로그인을 위한 API            ##
+#################################
+
+# [회원가입 API]
+# id, pw, nickname을 받아서, mongoDB에 저장
+# 저장하기 전, pw를 sha256 방법(=단방향 암호화. 풀어볼 수 없음)으로 암호화해서 저장
+
+# 회원가입 데이터 전송, 아이디 중복 차단,
+@app.route('/api/signup', methods=['POST'])
+def api_signup_post() :
+
+    url_id = request.form['url_id']
+    url_pw = request.form['url_pw']
     url_pw2 = request.form['url_pw2']
-    url_name = request.form['url_name'] 
+    url_name = request.form['url_name']
 
     article = {'id': url_id, 'pw': url_pw, 'name': url_name}
     result = db.user.find_one({'id': url_id})
@@ -44,80 +80,67 @@ def signup_post() :
             return jsonify({'result': 'success'})
 
 
-# 실시간 아이디 확인
-@app.route('/id_check', methods=['POST'])
-def id_check() :
-    url_id = request.form['url_id']
-    id_list = list(db.user.find({},{'_id':0, }))
-    # id_list2 = db.user.find_one({'id': ''})
-    # print(id_list)
-    id_list_len = len(id_list)
-    # print(id_list_len)
-    
-    for i in range(id_list_len):
-        
-        id_se = id_list[i]['id']
-        if id_se == url_id:
-            return jsonify({'result': 'success'})
-            
-        else:
-            print()
-    
-    return jsonify({'result': 'bb'})       
-        
-
-###################
-####### 최연준#######
-@app.route('/')
-def home():
-    return render_template('main.html')
-
-@app.route('/signup', methods=['GET'])
-def signup():
-    return render_template('signup.html')
-
-# API 역할을 하는 부분
-@app.route('/login', methods=['POST'])
-def login():
+# [로그인 API]
+# id, pw를 받아서 맞춰보고, 토큰을 만들어 발급합니다.
+@app.route('/api/login', methods=['POST'])
+def api_login():
     id_receive = request.form['id_give']
     pw_receive = request.form['pw_give']
-    # pw_hash = hashlib.sha256(pw_receive.encode('utf-8')).hexdigest()
-    result = db.user.find_one({'id': id_receive, 'pw': pw_receive})
-    SECRET_KEY = 'this is key'
-    if result is not None:
-        payload = {
-            'id': id_receive
-        }
 
+    # 회원가입 때와 같은 방법으로 pw를 암호화
+    # pw_hash = hashlib.sha256(pw_receive.encode('utf-8')).hexdigest()
+
+    # id, 암호화된pw을 가지고 해당 유저를 찾기
+    result = db.user.find_one({'id': id_receive, 'pw': pw_receive})
+
+    # 찾으면 JWT 토큰을 만들어 발급
+    if result is not None:
+        # JWT 토큰에는, payload와 시크릿키가 필요함
+        # 시크릿키가 있어야 토큰을 디코딩(=풀기) 해서 payload 값을 볼 수 있음
+        # 아래에선 id와 exp를 담음. 즉, JWT 토큰을 풀면 유저ID 값을 알 수 있음
+        # exp는 만료시간. 시간이 지나면, 시크릿키로 토큰을 풀 때 만료되었다고 에러가 남
+        payload = {
+            'id': id_receive,
+        }
         token = jwt.encode(payload, SECRET_KEY, algorithm='HS256')
 
-
+        										# token을 줍니다.
         return jsonify({'result': 'success', 'token': token})
-
-    else:
+    else:	# 찾지 못하면
         return jsonify({'result': 'fail', 'msg': '아이디/비밀번호가 일치하지 않습니다.'})
 
-@app.route('/board/board', methods=['GET'])
-def board():
+
+# [유저 정보 확인 API]
+# 로그인된 유저만 call 할 수 있는 API입니다.
+# 유효한 토큰을 줘야 올바른 결과를 얻어갈 수 있습니다.
+# (그렇지 않으면 남의 장바구니라든가, 정보를 누구나 볼 수 있겠죠?)
+@app.route('/api/name', methods=['GET'])
+def api_valid():
     token_receive = request.cookies.get('mytoken')
-    if token_receive is not None:
-        SECRET_KEY = 'this is key'
+
+    # try / catch 문?
+    # try 아래를 실행했다가, 에러가 있으면 except 구분으로 가란 얘기입니다.
+
+    try:
+        # token을 시크릿키로 디코딩합니다.
+        # 보실 수 있도록 payload를 print 해두었습니다. 우리가 로그인 시 넣은 그 payload와 같은 것이 나옵니다.
         payload = jwt.decode(token_receive, SECRET_KEY, algorithms=['HS256'])
         print(payload)
-        return render_template('board.html')
-    else :
-        return render_template('main.html')  
-    
-    
-##############
-###노유나#######
 
+        # payload 안에 id가 들어있습니다. 이 id로 유저정보를 찾습니다.
+        # 여기에선 그 예로 닉네임을 보내주겠습니다.
+        userinfo = db.user.find_one({'id': payload['id']}, {'_id': 0})
+        return jsonify({'result': 'success', 'name': userinfo['name']})
+    except jwt.ExpiredSignatureError:
+        # 위를 실행했는데 만료시간이 지났으면 에러가 납니다.
+        return jsonify({'result': 'fail', 'msg': '로그인 시간이 만료되었습니다.'})
+    except jwt.exceptions.DecodeError:
+        return jsonify({'result': 'fail', 'msg': '로그인 정보가 존재하지 않습니다.'})
 
-#Read Board
-@app.route('/board', methods=['GET'])
-def read_board():
-    boards = list(db.boards.find({},{'_id':False}))
-    return render_template("board/board.html", boards=boards)
+# @app.route('/', methods=['GET'])
+# def read_board():
+#     boards = list(db.boards.find({},{'_id':False}))
+#     return render_template("board/board.html", boards=boards)
 
 
 #Create Board
@@ -125,21 +148,6 @@ def read_board():
 def create_board():
     return render_template("board/createBoard.html")
 
-#Ureate Board (미루자)
-
-#Delete Board (미루자)
-
-#페이징(노유나)
-
-#게시판 늘리기(최연준)
-
-#댓글 작성(홍석규)
-
-#댓글 뷰(홍석규)
-
-#대댓글 (홍석규)
-
-
 
 if __name__ == '__main__':
-    app.run('0.0.0.0',port=5005,debug=True)
+    app.run('0.0.0.0', port=5005, debug=True)

@@ -23,7 +23,7 @@ function post_signup() {
 
     $.ajax({
         type: "POST",
-        url: "/signup",
+        url: "/api/signup",
         data: {url_id: id, url_pw: pass, url_pw2: pass2, url_name: name},
         success: function (response) { 
             if (response["result"] == "success") {                
