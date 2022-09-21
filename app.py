@@ -1,5 +1,5 @@
 from flask import Flask, render_template, jsonify, request, session, redirect, url_for
-
+import time
 app = Flask(__name__)
 
 from pymongo import MongoClient
@@ -104,9 +104,10 @@ def api_login():
         }
         token = jwt.encode(payload, SECRET_KEY, algorithm='HS256')
 
-        										# token을 줍니다.
+        # token을 줍니다.
         return jsonify({'result': 'success', 'token': token})
-    else:	# 찾지 못하면
+    # 찾지 못하면 
+    else:	
         return jsonify({'result': 'fail', 'msg': '아이디/비밀번호가 일치하지 않습니다.'})
 
 
@@ -142,11 +143,35 @@ def api_valid():
 #     boards = list(db.boards.find({},{'_id':False}))
 #     return render_template("board/board.html", boards=boards)
 
+#Create Board
+@app.route('/board', methods=['POST'])
+def create_board():
+    title = request.form['title']
+    content = request.form['content']
+    category = request.form['category']
+    
+    token_receive = request.cookies.get('mytoken')
+    try:
+        payload = jwt.decode(token_receive, SECRET_KEY, algorithms=['HS256'])
+        print(payload)
+        userinfo = db.user.find_one({'id': payload['id']}, {'_id': 0})
+        user_id = userinfo['name'] 
+        db.boards.insert_one({'user_id':user_id, 'title':title, 'content':content, 'category':category, 'like': 0, 'date':time.strftime('%Y-%m-%d %X', time.localtime(time.time())) })
+        return jsonify({'result': 'success'})
+    except jwt.exceptions.DecodeError:
+        return jsonify({'result': 'fail', 'msg': '디코드 실패'})
+    
+    
+
+
 
 #Create Board
 @app.route('/createBoard', methods=['GET'])
-def create_board():
+def create_board_page():
     return render_template("board/createBoard.html")
+
+
+
 
 
 if __name__ == '__main__':

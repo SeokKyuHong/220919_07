@@ -41,8 +41,7 @@
 
 <body>
 
-    </header>
-    <h1>친해지길 바래</h1>
+    <h1 class="title">친해지길 바래</h1>
     <!-- nav var -->
     <div>
         <ul class="nav justify-content-center">
@@ -67,33 +66,64 @@
     <!-- 게시판 목록 -->
     <div class="wrap">
         {% for board in boards %}
-        <!--        {% for number in range(board|length)%}-->
+
+            <h1>{{  board.no}}</h1>
         <div class="card">
             <h5 class="card-header">
                 <div class="card-header__column">
-                    {{ board.user_id }}
-                    <!-- {{number}} -->
+                    {{  board.user_id  }}
                 </div>
                 <div class="card-header__column">
-                    {{ board.date }}
+                    {{  board.date  }}
                 </div>
             </h5>
             <div>
-                {{ board.category }}
+                <div class="card-body-header">
+                    <div class="card-body-header_column">
+                        {{  board.category  }}
+                    </div>
+                    <div class="card-body-header__column">
+                        <button>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x" viewBox="0 0 16 16">
+                                <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
+                            </svg>
+                        </button>
+                        
+                    </div>
+                </div>
             </div>
             <div class="card-body">
-                <h5 class="card-title">{{ board.title }}</h5>
-                <p class="card-text" id='more-view'>{{ board.content }}</p>
-                <input class="btn btn-primary" button type="button" onclick="moreview()" id='more' value="더보기">
+                <h5 class="card-title">{{  board.title  }}</h5>
+                <h6 class="card-text">{{  board.content }}</h6>
+                <button type="button" class="btn btn-primary btn-sm">더보기</button>
             </div>
         </div>
         {% endfor %}
-        <!-- {% endfor %} -->
     </div>
-    <button type="button" class="btn btn-primary btn-sm">로그아웃</button>
-    <a href="createBoard"><button type="button" class="btn btn-primary btn-sm">글쓰기</button></a>ß
 
-
+    <nav aria-label="Page navigation example">
+        <ul class="pagination">
+            <li class="page-item">
+                <a class="page-link" href="" aria-label="Previous">
+                    <span aria-hidden="true">&laquo;</span>
+                </a>
+            </li>
+            {%for i in range(boards | length)%}
+                <li class="page-item"><a class="page-link" href="board/?page={{  loop.index  }}" onclick="paging_board()">{{ loop.index }}</a></li>
+            {% endfor %}
+            <li class="page-item">
+                <a class="page-link" href="#" aria-label="Next">
+                    <span aria-hidden="true">&raquo;</span>
+                </a>
+            </li>
+            </ul>
+    </nav>
+    
+    <div>
+        <button type="button" class="btn btn-primary btn-sm">로그아웃</button>
+        <a href="createBoard"><button type="button" class="btn btn-primary btn-sm">글쓰기</button></a>
+    </div>
+    
 </body>
 
 </html>
