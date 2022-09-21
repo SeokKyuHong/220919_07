@@ -22,52 +22,78 @@
     <title>친해지길바래</title>
 
     <!-- style -->
-    <link rel="stylesheet" href= {{url_for('static', filename="css/style.css")}}>
-    <script type="text/javascript">
+    <link rel="stylesheet" href= "../static/style.css">
+
+    <script>
         $(document).ready(function(){
-            
-            /* Category */
-            jQuery('#gnb div').each(function(){
-                jQuery(this).prev().click(function(){
-                    jQuery(this).next().stop().slideToggle();
-                });
-                return true;
-            });
-
-            /* Category */
-            jQuery('header nav h3 span').append(jQuery('#gnb div').length-jQuery('#gnb h4').length);
-
-            /* */
-        
-            function hello(){
-                let btn_text = $('#thfwlrkgsrjdi').text(); 
-                console.log(btn_text)
-            }
         });
+
+        let category = '';
+
+        let selectBoxChange = function(value){
+            console.log(value);
+            category = value
+            $('#changeInput').val(value)
+        }
+
+        //입력값 필수요소 확인
+        function essentialBoard(){
+            //1. title, contnet, category의 입력값을 가져온다.
+            let title = $('#input_title').val();
+            let content = $('#input_content').val();
+            
+            //2. 만약 입력값이 빈칸이면?
+            if (title == ''){
+                alert('제목을 입력해주세요!')
+            } else if (content == '') {
+                alert('내용을 입력해주세요!')
+            } else if (category == ''){
+                alert('카테고리를 선택해주세요! ')
+            } else {
+                createBoard(title, content, category)
+            }
+        }
+        
+        //게시판 만들기
+        function createBoard(title, content, category){
+            $.ajax({
+                type: "POST",
+                url: "/board",
+                data: { title:title, content:content, category:category  },
+                success: function (response) {
+                    if (response["result"] == "success") {
+                        alert("포스팅 성공!");
+                        window.location.replace("/");
+                    } else {
+                        alert("서버오류!");
+                    }
+                }
+            })
+        }
+
+        
 
     </script>
 </head>
 <body>
     <h1>친해지길 바래</h1>
-    <!-- nav var -->
-    <select>
-        <option value="americano">잡담</option>
-        <option value="caffe latte">식사/야식</option>
-        <option value="cafe au lait">공동구매</option>
-    </select>
+        <select class="select-category" id="changeTest" onchange="selectBoxChange(this.value);">
+            <option value="잡담">잡담</option>
+            <option value="식사/야식">식사/야식</option>
+            <option value="공동구매">공동구매</option>
+        </select>
 
     <form>
         <div class="form-group">
             <label for="exampleFormControlTextarea1"> 제목을 입력하세요 </label>
-            <input type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp">
+            <input type="text" class="form-control" id="input_title" aria-describedby="emailHelp">
         </div>
         <div class="form-group">
             <label for="exampleFormControlTextarea1"> 글을 작성해주세요 </label>
-            <textarea class="form-control" id="exampleFormControlTextarea1" rows="3"></textarea>
+            <textarea class="form-control" id="input_content" rows="3"></textarea>
         </div>
     </form>
-    <button type="button" class="btn btn-primary btn-lg btn-block">작성완료</button>
-    
+    <button type="button" class="btn btn-primary btn-lg btn-block" onclick="essentialBoard()">작성완료</button>
     
 </body>
 

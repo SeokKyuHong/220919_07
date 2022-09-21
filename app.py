@@ -1,5 +1,5 @@
 from flask import Flask, render_template, jsonify, request, session, redirect, url_for
-
+import time
 app = Flask(__name__)
 
 from pymongo import MongoClient
@@ -126,9 +126,10 @@ def api_login():
         }
         token = jwt.encode(payload, SECRET_KEY, algorithm='HS256')
 
-        										# token을 줍니다.
+        # token을 줍니다.
         return jsonify({'result': 'success', 'token': token})
-    else:	# 찾지 못하면
+    # 찾지 못하면 
+    else:	
         return jsonify({'result': 'fail', 'msg': '아이디/비밀번호가 일치하지 않습니다.'})
 
 
@@ -167,6 +168,7 @@ def read_board():
     
     list_board = list(db.boards.find({},{'_id':False}))
 
+<<<<<<< HEAD
     for i in range(len(list_board)):
         id = str(boards[i]['_id'])
         list_board[i]['no'] = id
@@ -174,10 +176,33 @@ def read_board():
 
     #db.boards.insert_one({'user_id':'', 'title':'안녕', 'content':'전산학 사전지식이 없는 졸업생/직장인들을 대상으로, 5개월 간의 몰입 과정을 장기적으로 성장할 수 있는 정예 개발자를 길러내는 코스입니전산학과를 졸업하지 않았으면 개발자가 되기에 늦은 것일까요?훌륭한 개발자는 타고난 것일까요? 저희는 그렇게 생각하지 않습니다.문제를 깊수준까지 파고 들어갈 전산학 핵심 내용을 공부하고,어려운 실습 과정을 동료들과 끝까지 실행하는 훈련을 통해, 충분히 거듭날 수 있습니다.과제와 도전의 연속인 교육 과정은, 험난한 정글 같습니다.하지만 SW사관학교 정글을 수료한다면,이전과는 다른 미래를 그리는, 어디서든 탐내는인재로 거듭난 자신을 마주할 것입니다.정글에서 떠오르는 해를 보면서 보물을 찾는 경험. 함께 하시죠!', 'category':'잡담', 'like': 0, 'date':time.strftime('%Y-%m-%d %X', time.localtime(time.time())) })
     return render_template("board/board.html", boards=list_board)
+=======
+#Create Board
+@app.route('/board', methods=['POST'])
+def create_board():
+    title = request.form['title']
+    content = request.form['content']
+    category = request.form['category']
+    
+    token_receive = request.cookies.get('mytoken')
+    try:
+        payload = jwt.decode(token_receive, SECRET_KEY, algorithms=['HS256'])
+        print(payload)
+        userinfo = db.user.find_one({'id': payload['id']}, {'_id': 0})
+        user_id = userinfo['name'] 
+        db.boards.insert_one({'user_id':user_id, 'title':title, 'content':content, 'category':category, 'like': 0, 'date':time.strftime('%Y-%m-%d %X', time.localtime(time.time())) })
+        return jsonify({'result': 'success'})
+    except jwt.exceptions.DecodeError:
+        return jsonify({'result': 'fail', 'msg': '디코드 실패'})
+    
+    
+
+
+>>>>>>> 62df924099f4ff930c05ad5b2eff12775a5fe593
 
 #Create Board
 @app.route('/createBoard', methods=['GET'])
-def create_board():
+def create_board_page():
     return render_template("board/createBoard.html")
 
 ## 댓글 등록
@@ -207,6 +232,9 @@ def api_comment():
 
 
 ## 댓글 리스트
+
+
+
 
 
 if __name__ == '__main__':
