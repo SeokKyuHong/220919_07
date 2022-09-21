@@ -11,32 +11,38 @@
         integrity="sha384-B0vP5xmATw1+K9KRQjQERJvTumQW0nPEzvF6L/Z6nronJ3oUOFUFpCjEUQouq2+l" crossorigin="anonymous">
 
     <!-- JS -->
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"
-        integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
-        crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"
         integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN"
         crossorigin="anonymous"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.js"></script>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script src="../static/comment.js"></script>
     <title>친해지길바래</title>
 
     <!-- style -->
     <link rel="stylesheet" href= "../static/style.css">
-    <link rel="stylesheet" href= "../static/style.css">
+    
+
+    <style>
+        ul, li{
+            list-style: none;
+        }
+    </style>
 
     <script>
-        function paging_board(){
+
+        function category(category){
             $.ajax({
-                type: "GET",
-                url:"",
-                data: {},
-                success: function(response){
-                    console.log(response)
+                type: "GET", // GET 방식으로 요청한다.
+                url: "api/"+category,
+                data: { 'category' : category}, // 요청하면서 함께 줄 데이터 (GET 요청시엔 비워두세요)
+                success: function(response){ // 서버에서 준 결과를 response라는 변수에 담음
+                  console.log(response['result']) // 서버에서 준 결과를 이용해서 나머지 코드를 작성
                 }
             })
         }
+
     </script>
+
 </head>
 <body>
 
@@ -45,19 +51,19 @@
     <div>
         <ul class="nav justify-content-center">
             <li class="nav-item">
-                <a class="nav-link active" href="#">최신글</a>
+                <a class="nav-link active">최신글</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="#">Best</a>
+                <a class="nav-link">Best</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="#">잡담</a>
+                <a class="nav-link" onclick="category('잡담')">잡담</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link disabled">식사/야식</a>
+                <a class="nav-link disabled" onclick="category('식사/야식')">식사/야식</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link">공동구매</a>
+                <a class="nav-link" onclick="category('공동구매')">공동구매</a>
             </li>
         </ul>
     </div>
@@ -66,11 +72,7 @@
     <div class="wrap">
         {% for board in boards %}
 
-<<<<<<< HEAD
-            <h1>{{ board.no }}</h1>
-=======
-            <h1>{{  board.no}}</h1>
->>>>>>> 62df924099f4ff930c05ad5b2eff12775a5fe593
+            <h1 id="board_no">{{ board.no }}</h1>
         <div class="card">
             <h5 class="card-header">
                 <div class="card-header__column">
@@ -98,34 +100,34 @@
             <div class="card-body">
                 <h5 class="card-title">{{  board.title  }}</h5>
                 <h6 class="card-text">{{  board.content }}</h6>
-<<<<<<< HEAD
+                <!--댓글 리스트-->    
+                <!-- {% if '{{ board.no }}' != '{{  comment.board_ojid  }}' %} -->
+                    {% for comment in board.comment %}     
+                        <ul class="comment-list-box">
+                            <li class="card-comment-id">{{  comment.co_user_id  }}</li> 
+                            <li class="card-comment">{{  comment.comment }}</li> 
+                        </ul>
+                    {% endfor %}
+                <!-- {% endif %} -->
 
-<!--댓글 리스트-->    
-
-
-<!--댓글 작성-->   
+                <!--댓글 작성-->   
                 <form action="">
                     <input 
                         id="post-comment" 
                         type="id" 
                         class="form-control" 
                         id="exampleInputEmail1" 
-                        aria-describedby="emailHelp">
-                    <button 
-                        type="button" 
-                        class="btn btn-secondary btn-lg btn-block" 
-                        onclick="comment_cr()">등록
-                    </button>
+                        aria-describedby="emailHelp"
+                        placeholder="댓글을작성해 주세요.">
+                    <button type="submit" class="btn btn-secondary btn-lg btn-block" onclick="comment_cr('{{ board.no }}');">등록</button>
                 </form>
-=======
->>>>>>> 62df924099f4ff930c05ad5b2eff12775a5fe593
                 <button type="button" class="btn btn-primary btn-sm">더보기</button>
             </div>
         </div>
         {% endfor %}
     </div>
 
-    <nav aria-label="Page navigation example">
+    <!-- <nav aria-label="Page navigation example">
         <ul class="pagination">
             <li class="page-item">
                 <a class="page-link" href="" aria-label="Previous">
@@ -141,7 +143,7 @@
                 </a>
             </li>
             </ul>
-    </nav>
+    </nav> -->
     
     <div>
         <button type="button" class="btn btn-primary btn-sm">로그아웃</button>

@@ -1,19 +1,31 @@
-function comment_cr(){
+// window.onload = funtion(){
+//     const abcd = $("#board_no").text();
+//     if(abcd == ){
+
+//     }
+// }
+
+function comment_cr(nnn){
     const comment = $("#post-comment").val();
-    console.log(comment);
+    
+    
 
     $.ajax({
         type: "POST",
         url: "/api/comment",
-        data: {comment: comment},
+        data: {comment: comment, ojid: nnn},
         success: function (response) { 
             if (response["result"] == "success") { 
-                console.log('작성완료')
+                alert("댓글 등록 완료")
+                document.location.reload(true);
+                
             }else{
-                alert(response['msg2'])
+                alert('오류')
             }
             
         }
     })
 
 }
+
+
