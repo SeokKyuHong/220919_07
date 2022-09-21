@@ -67,6 +67,8 @@ def api_signup_post() :
     url_pw2 = request.form['url_pw2']
     url_name = request.form['url_name']
 
+    print(url_id)
+
     article = {'id': url_id, 'pw': url_pw, 'name': url_name}
     result = db.user.find_one({'id': url_id})
 
@@ -79,6 +81,26 @@ def api_signup_post() :
             db.user.insert_one(article)
             return jsonify({'result': 'success'})
 
+# 실시간 아이디 확인
+@app.route('/id_check', methods=['POST'])
+def id_check() :
+    url_id = request.form['url_id']
+    id_list = list(db.user.find({},{'_id':0, }))
+    # id_list2 = db.user.find_one({'id': ''})
+    # print(id_list)
+    id_list_len = len(id_list)
+    # print(id_list_len)
+    
+    for i in range(id_list_len):
+        
+        id_se = id_list[i]['id']
+        if id_se == url_id:
+            return jsonify({'result': 'success'})
+            
+        else:
+            print()
+    
+    return jsonify({'result': 'bb'})   
 
 # [로그인 API]
 # id, pw를 받아서 맞춰보고, 토큰을 만들어 발급합니다.
@@ -137,16 +159,54 @@ def api_valid():
     except jwt.exceptions.DecodeError:
         return jsonify({'result': 'fail', 'msg': '로그인 정보가 존재하지 않습니다.'})
 
-# @app.route('/', methods=['GET'])
-# def read_board():
-#     boards = list(db.boards.find({},{'_id':False}))
-#     return render_template("board/board.html", boards=boards)
+#Read Board
+@app.route('/board', methods=['GET'])
+def read_board():
+    
+    boards = db.boards.find({})
+    
+    list_board = list(db.boards.find({},{'_id':False}))
 
+    for i in range(len(list_board)):
+        id = str(boards[i]['_id'])
+        list_board[i]['no'] = id
+        print(list_board[i])
+
+    #db.boards.insert_one({'user_id':'', 'title':'안녕', 'content':'전산학 사전지식이 없는 졸업생/직장인들을 대상으로, 5개월 간의 몰입 과정을 장기적으로 성장할 수 있는 정예 개발자를 길러내는 코스입니전산학과를 졸업하지 않았으면 개발자가 되기에 늦은 것일까요?훌륭한 개발자는 타고난 것일까요? 저희는 그렇게 생각하지 않습니다.문제를 깊수준까지 파고 들어갈 전산학 핵심 내용을 공부하고,어려운 실습 과정을 동료들과 끝까지 실행하는 훈련을 통해, 충분히 거듭날 수 있습니다.과제와 도전의 연속인 교육 과정은, 험난한 정글 같습니다.하지만 SW사관학교 정글을 수료한다면,이전과는 다른 미래를 그리는, 어디서든 탐내는인재로 거듭난 자신을 마주할 것입니다.정글에서 떠오르는 해를 보면서 보물을 찾는 경험. 함께 하시죠!', 'category':'잡담', 'like': 0, 'date':time.strftime('%Y-%m-%d %X', time.localtime(time.time())) })
+    return render_template("board/board.html", boards=list_board)
 
 #Create Board
 @app.route('/createBoard', methods=['GET'])
 def create_board():
     return render_template("board/createBoard.html")
+
+## 댓글 등록
+@app.route('/api/comment', methods=['POST'])
+def api_comment():
+    comment_form = request.form['comment']
+    token_receive = request.cookies.get('mytoken')
+
+    try:
+        # token을 시크릿키로 디코딩합니다.
+        # 보실 수 있도록 payload를 print 해두었습니다. 우리가 로그인 시 넣은 그 payload와 같은 것이 나옵니다.
+        payload = jwt.decode(token_receive, SECRET_KEY, algorithms=['HS256'])
+        print(payload)
+        # payload 안에 id가 들어있습니다. 이 id로 유저정보를 찾습니다.
+        # 여기에선 그 예로 닉네임을 보내주겠습니다.
+
+        userinfo = db.user.find_one({'id': payload['id']}, {'_id': 0})
+        user_id = userinfo['id']
+        db.comment.insert_one({'co_user_id': user_id, 'comment': comment_form})
+
+        return jsonify({'result': 'success'})
+    except jwt.ExpiredSignatureError:
+        # 위를 실행했는데 만료시간이 지났으면 에러가 납니다.
+        return jsonify({'result': 'fail', 'msg': '로그인 시간이 만료되었습니다.'})
+    except jwt.exceptions.DecodeError:
+        return jsonify({'result': 'fail', 'msg': '로그인 정보가 존재하지 않습니다.'})
+
+
+## 댓글 리스트
 
 
 if __name__ == '__main__':
