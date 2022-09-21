@@ -1,5 +1,6 @@
 
 from os import lseek
+from unittest import result
 from flask import Flask, render_template, request, jsonify
 from pymongo import MongoClient
 import hashlib
@@ -21,7 +22,7 @@ app = Flask(__name__)
 def signup_read() :
     return render_template("signup.html")
 
-# 회원가입 데이터 전송
+# 회원가입 데이터 전송, 아이디 중복 차단, 
 @app.route('/signup', methods=['POST'])
 def signup_post() :
 
@@ -31,20 +32,17 @@ def signup_post() :
     url_name = request.form['url_name'] 
 
     article = {'id': url_id, 'pw': url_pw, 'name': url_name}
-    
-    db.user.insert_one(article)
-    return jsonify({'result': 'success', 'msg': '가입완료'})
+    result = db.user.find_one({'id': url_id})
 
-    # id_list = list(db.user.find({},{'_id':0, }))
-    # id_list2 = db.user.find_one({'id': ''})
-    # print(id_list)
-    # id_list_len = len(id_list)
-    # print(id_list_len)
+    if result is not None:
+        return jsonify({'result': 'fail', 'msg': '이미 존재하는 아이디 입니다.'})
+    else:
+        if url_pw != url_pw2:
+            return jsonify({'result': 'fail2', 'msg2': '비밀번호가 같지 않습니다.'})
+        else:
+            db.user.insert_one(article)
+            return jsonify({'result': 'success'})
 
-# 회원가입 성공하면 로그인 페이지로 보내줌
-# @app.route('/', methods=['GET'])
-# def main_read() :
-#     return render_template("main.html")
 
 # 실시간 아이디 확인
 @app.route('/id_check', methods=['POST'])

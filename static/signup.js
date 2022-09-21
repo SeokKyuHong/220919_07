@@ -6,23 +6,45 @@ function post_signup() {
     const pass2 = $("#post-signup-pw2").val();
     const name = $("#post-signup-name").val();
 
+    if(id == ''){
+        alert("아이디를 입력하여 주세요.");
+        return
+    }else if(pass == ''){
+        alert("비밀번호를 입력하여 주세요.")
+        return
+    }else if(pass2 == ''){
+        alert("비밀번호를 입력하여 주세요.")
+        return
+    }else if(name == ''){
+        alert("이름을 입력하여 주세요.")
+        return
+    }
+
+
     $.ajax({
         type: "POST",
         url: "/signup",
         data: {url_id: id, url_pw: pass, url_pw2: pass2, url_name: name},
         success: function (response) { 
             if (response["result"] == "success") {                
+                alert('회원가입이 완료 되었습니다.')
+                
+                location.href = '/'
+            }else if(response["result"] == "fail"){
                 alert(response['msg'])
-                console.log(alert)
-                location.href = '/';
             }else{
-                alert("서버오류!");
+                alert(response['msg2'])
             }
             
         }
     })
 
 }
+
+function cen(){
+    location.href = '/'
+}
+
 
 //아이디 실시간 중복체크
 function checkId() {
