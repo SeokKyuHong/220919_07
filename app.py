@@ -4,6 +4,7 @@ import time
 app = Flask(__name__)
 
 from pymongo import MongoClient
+from bson.objectid import ObjectId
 
 client = MongoClient('mongodb://SecondWind:clsgowlrlfqkfo@13.125.11.60', 27017)
 db = client.db_00_07
@@ -35,9 +36,7 @@ def home():
         user_info = db.user.find_one({"id": payload['id']})
         
         comments = list(db.comment.find({}, {'_id': False}))
-            
-
-    
+        
         list_board = list(db.boards.find({}))
         for board in list_board:
             board['comment'] = []
@@ -49,9 +48,6 @@ def home():
         # for i in range(0, len(list_board)-1):
         #     id = str(boards[i]['_id'])
         #     list_board[i]['no'] = id
-            print("=============")
-            print("=============")
-            print(list_board)
         return render_template('board/board.html', name=user_info["name"], boards=list_board)
         # return redirect(url_for("", name=user_info["name"]))
     except jwt.ExpiredSignatureError:
@@ -259,6 +255,16 @@ def user_board():
         
     except jwt.exceptions.DecodeError:
         return jsonify({'result': 'fail', 'msg': '디코드 실패'})
+
+
+@app.route('/api/board/delete', methods=['DELETE'])
+def delete_board() :
+    board_id = request.form['board_id']
+    db.boards.delete_one({'_id': ObjectId(board_id)})
+    
+    return jsonify({'result': 'success', 'msg': '삭제완료!'})
+
+    
 
 @app.route('/api/<category>')
 def category(category):
